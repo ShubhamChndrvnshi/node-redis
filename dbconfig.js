@@ -27,12 +27,12 @@ client.on('end', function() {
     process.exit();
 });
 
-module.exports.set = (key, value) => {
+let set = (key, value) => {
   client.set(key, value, redis.print);
   return 'done';
 }
 
-module.exports.get = (key) => {
+let get = (key) => {
   return new Promise((resolve, reject) => {
     client.get(key, function (error, result) {
         if (error) {
@@ -44,8 +44,13 @@ module.exports.get = (key) => {
   });
 }
 
-module.exports.close = () => {
+let close = () => {
   client.quit();
 }
 
-module.exports = { client: client};
+module.exports = {
+   client: client,
+   set: set,
+   get: get,
+   close: close
+};
