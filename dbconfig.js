@@ -7,7 +7,6 @@ var client = redis.createClient({
 
 client.on('connect', function() {
     console.log('Redis Database connected'+'\n');
-    client.del(["worker"]);
 });
 
 client.on('reconnecting', function() {
@@ -48,3 +47,5 @@ module.exports.get = (key) => {
 module.exports.close = () => {
   client.quit();
 }
+
+module.exports = { client: client};
