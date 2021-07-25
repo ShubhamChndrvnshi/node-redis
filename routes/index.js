@@ -17,11 +17,11 @@ router.get('/', async function (req, res, next) {
 });
 
 
-cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
+cron.schedule(process.env.CRON_ODDS_API, saveMarketOddsData);
 
 cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 
-cron.schedule(process.env.CRON_ODDS_API, saveMarketOddsData);
+cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
     console.log("*****************************************************************");
