@@ -48,10 +48,11 @@ function saveMarketOddsData() {
                 };
                 axios(config).then(function (response) {
                     response.data.data.items.forEach(item => {
+                        let market_id = item.market_id;
                         let stringified = stringyfyValues(item);
                         if (stringified.market_id) {
                             db.client.hmset(`market-${
-                                item.market_id
+                                market_id
                             }`, stringified);
                         }
                     });
