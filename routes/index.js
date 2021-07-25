@@ -51,7 +51,7 @@ function saveMarketOddsData() {
                         let stringified = stringyfyValues(item);
                         if (stringified.market_id) {
                             db.client.hmset(`market-${
-                                items.market_id
+                                item.market_id
                             }`, stringified);
                         }
                     });
