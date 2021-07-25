@@ -54,10 +54,10 @@ function saveMarketOddsData() {
                                 stringified.market_id
                             }`, stringified);
                         }
-                        console.log("*****************************************************************");
-                        console.log("Insert completed for Market ODDS data");
-                        console.log("*****************************************************************");
-                    })
+                    });
+                    console.log("*****************************************************************");
+                    console.log("Insert completed for Market ODDS data");
+                    console.log("*****************************************************************");
                 }).catch(function (error) {
                     console.log(error);
                 });
