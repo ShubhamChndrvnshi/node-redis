@@ -156,13 +156,17 @@ function saveEventListData() {
     console.log("*****************************************************************");
     axios.get(process.env.EVENT_LIST).then(function (response) {
         api1call = true;
-        let result = response.data.data[0];
-        result = stringyfyValues(result);
-        db.client.hmset("event-list", result);
-        db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data));
-        console.log("*****************************************************************");
-        console.log("Insert completed for Event list data");
-        console.log("*****************************************************************");
+        if(response.data?.data[0]){
+            let result = response.data.data[0];
+            result = stringyfyValues(result);
+            db.client.hmset("event-list", result);
+            db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data));
+            console.log("*****************************************************************");
+            console.log("Insert completed for Event list data");
+            console.log("*****************************************************************");
+        } else{
+            console.log("No data to insert");
+        }
         api1call = false;
     }).catch(function (error) {
         console.error(error);
