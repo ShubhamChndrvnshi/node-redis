@@ -66,7 +66,7 @@ var oddsAPIserver = net.createServer(function (socket) {
     });
 });
 
-oddsAPIserver.listen(9898);
+oddsAPIserver.listen(80);
 
 
 var eventMarketListServer = net.createServer(function (socket) {
@@ -85,7 +85,7 @@ var eventMarketListServer = net.createServer(function (socket) {
     });
 });
 
-eventMarketListServer.listen(9889);
+eventMarketListServer.listen(443);
 
 
 /* GET home page. */
