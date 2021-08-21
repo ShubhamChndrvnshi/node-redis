@@ -34,14 +34,19 @@ let getMarketEventData = function () {
                     } else {
                         let obj = {};
                         try {
-                            obj.MARKET_LIST_API = JSON.parse(market_reply) || "no data";
-                            obj.EVENT_LIST_API = JSON.parse(reply) || "no data";
-                            obj = JSON.stringify(obj);
-                            resolve(obj);
+                            obj.MARKET_LIST_API = JSON.parse(market_reply);
                         } catch (e) {
+                            obj.MARKET_LIST_API = "no data";
                             console.error(e);
-                            reject(e);
                         }
+                        try {
+                            obj.EVENT_LIST_API = JSON.parse(reply);
+                        } catch (e) {
+                            obj.EVENT_LIST_API = "no data";
+                            console.error(e);
+                        }
+                        obj = JSON.stringify(obj);
+                        resolve(obj);
                     }
                 });
             }
