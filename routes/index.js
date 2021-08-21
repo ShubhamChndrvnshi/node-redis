@@ -112,9 +112,8 @@ cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
-    console.log("*****************************************************************");
+    console.log("\n*****************************************************************");
     console.log("Insert Market ODDS data into DB");
-    console.log("*****************************************************************");
     if (!api2call) {
         db.client.hget("event-list", "event", (err, reply) => {
             if (err) {
@@ -144,23 +143,22 @@ function saveMarketOddsData() {
                                 }`, stringified);
                         }
                     });
-                    console.log("*****************************************************************");
                     console.log("Insert completed for Market ODDS data");
-                    console.log("*****************************************************************");
+                    console.log("*****************************************************************\n");
                 }).catch(function (error) {
                     console.log(error);
                 });
             } else {
                 console.log("No event list data");
+                console.log("*****************************************************************\n");
             }
         })
     }
 }
 
 function saveEventListData() {
-    console.log("*****************************************************************");
+    console.log("\n*****************************************************************");
     console.log("Insert Event list data into DB");
-    console.log("*****************************************************************");
     axios.get(process.env.EVENT_LIST).then(function (response) {
         api1call = true;
         if(response.data?.data[0]){
@@ -168,11 +166,11 @@ function saveEventListData() {
             let result = response.data.data[0];
             result = stringyfyValues(result);
             db.client.hmset("event-list", result);
-            console.log("*****************************************************************");
             console.log("Insert completed for Event list data");
-            console.log("*****************************************************************");
+            console.log("*****************************************************************\n");
         } else{
             console.log("No data to insert");
+            console.log("*****************************************************************\n");
         }
         api1call = false;
     }).catch(function (error) {
@@ -182,9 +180,8 @@ function saveEventListData() {
 
 
 function saveMarketListData() {
-    console.log("*****************************************************************");
+    console.log("\n*****************************************************************");
     console.log("Insert Market list data into DB");
-    console.log("*****************************************************************");
     if (!api1call) {
         db.client.hgetall("event-list", (err, reply) => {
             if (err) {
@@ -202,9 +199,8 @@ function saveMarketListData() {
                                 }`, result);
                         }
                         db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(response.data.data));
-                        console.log("*****************************************************************");
                         console.log("Insert completed for Market list data");
-                        console.log("*****************************************************************");
+                        console.log("*****************************************************************\n");
                         api2call = false;
                     }).catch(function (error) {
                         console.error(error);
@@ -212,6 +208,7 @@ function saveMarketListData() {
                 })
             } else {
                 console.log("No data in event list");
+                console.log("*****************************************************************\n");
             }
         });
     }
