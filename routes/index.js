@@ -113,6 +113,7 @@ cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
+    apiStatus();
     if (!api2call && !api1call) {
         api3call = true;
         console.log("\n*****************************************************************");
@@ -160,6 +161,7 @@ function saveMarketOddsData() {
 }
 
 function saveEventListData() {
+    apiStatus();
     if (!api2call && !api3call) {
         api1call = true;
         console.log("\n*****************************************************************");
@@ -177,6 +179,9 @@ function saveEventListData() {
                 console.log("*****************************************************************\n");
             }
             api1call = false;
+        },err=>{
+            console.error(err);
+            api1call = false;
         }).catch(function (error) {
             console.error(error);
             api1call = false;
@@ -186,6 +191,7 @@ function saveEventListData() {
 
 
 function saveMarketListData() {
+    apiStatus();
     if (!api1call && !api3call) {
         api2call = true;
         console.log("\n*****************************************************************");
@@ -216,8 +222,8 @@ function saveMarketListData() {
                 console.log("No data in event list");
                 console.log("*****************************************************************\n");
             }
-            api2call = false;
         });
+        api2call = false;
     }
 }
 
@@ -237,6 +243,27 @@ function parseValues(object) {
         }
     }
     return object;
+}
+
+function apiStatus(){
+    if(api1call){
+        console.log("api1 call in progress");
+        console.log("api1call: ",api1call);
+        console.log("api2call: ",api2call);
+        console.log("api3call: ",api3call);
+    }
+    if(api2call){
+        console.log("api2 call in progress");
+        console.log("api1call: ",api1call);
+        console.log("api2call: ",api2call);
+        console.log("api3call: ",api3call);
+    }
+    if(api3call){
+        console.log("api3 call in progress");
+        console.log("api1call: ",api1call);
+        console.log("api2call: ",api2call);
+        console.log("api3call: ",api3call);
+    }
 }
 
 module.exports = router;
