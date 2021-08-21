@@ -207,13 +207,13 @@ function saveMarketListData() {
             if (reply) {
                 let market_list = {};
                 reply = parseValues(reply);
-                reply.event.forEach(item => {
+                reply.event.forEach(async (item) => {
                     console.log("Inserting data for event: " + item.eventId);
-                    axios.get(process.env.MARKET_LIST + item.eventId).then(function (response) {
+                    await axios.get(process.env.MARKET_LIST + item.eventId).then(function (response) {
                         if (response.data.data) {
+                            market_list[item.eventId] = response.data.data;
                             let result = stringyfyValues(response.data.data);
                             db.client.hmset(`event-${item.eventId}`, result);
-                            market_list[item.eventId] = response.data.data;
                         }
                     }).catch(function (error) {
                         console.error(error);
