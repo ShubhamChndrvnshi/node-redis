@@ -34,8 +34,8 @@ let getMarketEventData = function () {
                     } else {
                         let obj = {};
                         try {
-                            obj.MARKET_LIST_API = JSON.parse(market_reply);
-                            obj.EVENT_LIST_API = JSON.parse(reply);
+                            obj.MARKET_LIST_API = JSON.parse(market_reply) || "no data";
+                            obj.EVENT_LIST_API = JSON.parse(reply) || "no data";
                             obj = JSON.stringify(obj);
                             resolve(obj);
                         } catch (e) {
@@ -160,7 +160,7 @@ function saveEventListData() {
             let result = response.data.data[0];
             result = stringyfyValues(result);
             db.client.hmset("event-list", result);
-            db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data));
+            db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
             console.log("*****************************************************************");
             console.log("Insert completed for Event list data");
             console.log("*****************************************************************");
