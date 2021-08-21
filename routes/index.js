@@ -209,15 +209,8 @@ function saveMarketListData() {
                 reply = parseValues(reply);
                 reply.event.forEach(async (item) => {
                     console.log("Inserting data for event: " + item.eventId);
-                    await axios.get(process.env.MARKET_LIST + item.eventId).then(function (response) {
-                        if (response.data.data) {
-                            market_list[item.eventId] = response.data.data;
-                            let result = stringyfyValues(response.data.data);
-                            db.client.hmset(`event-${item.eventId}`, result);
-                        }
-                    }).catch(function (error) {
-                        console.error(error);
-                    });
+                    let temp = await callMarketListAPI();
+                    temp ? market_list[item.eventId] = temp : {};
                 })
                 db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(market_list));
                 console.log("Insert completed for Market list data");
@@ -231,6 +224,21 @@ function saveMarketListData() {
     } else {
         api2call = false;
     }
+}
+
+function callMarketListAPI(url){
+    return new Promise((resolve, reject)=>{
+        axios.get(url).then(function (response) {
+            if (response.data.data) {
+                let result = stringyfyValues(response.data.data);
+                db.client.hmset(`event-${item.eventId}`, result);
+                resolve(response.data.data);
+            }
+            resolve();
+        },err=>{
+            reject(err);
+        })
+    })
 }
 
 function stringyfyValues(object) {
