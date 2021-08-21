@@ -209,7 +209,7 @@ function saveMarketListData() {
                 reply = parseValues(reply);
                 reply.event.forEach(async (item) => {
                     console.log("Inserting data for event: " + item.eventId);
-                    let temp = await callMarketListAPI();
+                    let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
                     temp ? market_list[item.eventId] = temp : {};
                 })
                 db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(market_list));
@@ -226,7 +226,7 @@ function saveMarketListData() {
     }
 }
 
-function callMarketListAPI(url){
+function callMarketListAPI(url,item){
     return new Promise((resolve, reject)=>{
         axios.get(url).then(function (response) {
             if (response.data.data) {
