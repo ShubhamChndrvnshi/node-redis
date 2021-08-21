@@ -204,8 +204,8 @@ function saveMarketListData() {
                     });
                 })
                 db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(response.data.data));
-                        console.log("Insert completed for Market list data");
-                        console.log("*****************************************************************\n");
+                console.log("Insert completed for Market list data");
+                console.log("*****************************************************************\n");
             } else {
                 console.log("No data in event list");
                 console.log("*****************************************************************\n");
