@@ -113,9 +113,9 @@ cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
-    apiStatus();
-    if (!api2call && !api1call) {
-        api3call = true;
+    api3call = true;
+    if (!api2call || !api1call) {
+        apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Market ODDS data into DB");
         db.client.hget("event-list", "event", (err, reply) => {
@@ -155,15 +155,17 @@ function saveMarketOddsData() {
                 console.log("No event list data");
                 console.log("*****************************************************************\n");
             }
-            api3call = false;
         })
+        api3call = false;
+    } else {
+        api3call = false;
     }
 }
 
 function saveEventListData() {
-    apiStatus();
-    if (!api2call && !api3call) {
-        api1call = true;
+    api1call = true;
+    if (!api2call || !api3call) {
+        apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Event list data into DB");
         axios.get(process.env.EVENT_LIST).then(function (response) {
@@ -179,21 +181,23 @@ function saveEventListData() {
                 console.log("*****************************************************************\n");
             }
             api1call = false;
-        },err=>{
+        }, err => {
             console.error(err);
             api1call = false;
         }).catch(function (error) {
             console.error(error);
             api1call = false;
         });
+    } else {
+        api1call = false;
     }
 }
 
 
 function saveMarketListData() {
-    apiStatus();
-    if (!api1call && !api3call) {
-        api2call = true;
+    api2call = true;
+    if (!api1call || !api3call) {
+        apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Market list data into DB");
         db.client.hgetall("event-list", (err, reply) => {
@@ -224,6 +228,8 @@ function saveMarketListData() {
             }
         });
         api2call = false;
+    } else {
+        api2call = false;
     }
 }
 
@@ -245,24 +251,24 @@ function parseValues(object) {
     return object;
 }
 
-function apiStatus(){
-    if(api1call){
+function apiStatus() {
+    if (api1call) {
         console.log("api1 call in progress");
-        console.log("api1call: ",api1call);
-        console.log("api2call: ",api2call);
-        console.log("api3call: ",api3call);
+        console.log("api1call: ", api1call);
+        console.log("api2call: ", api2call);
+        console.log("api3call: ", api3call);
     }
-    if(api2call){
+    if (api2call) {
         console.log("api2 call in progress");
-        console.log("api1call: ",api1call);
-        console.log("api2call: ",api2call);
-        console.log("api3call: ",api3call);
+        console.log("api1call: ", api1call);
+        console.log("api2call: ", api2call);
+        console.log("api3call: ", api3call);
     }
-    if(api3call){
+    if (api3call) {
         console.log("api3 call in progress");
-        console.log("api1call: ",api1call);
-        console.log("api2call: ",api2call);
-        console.log("api3call: ",api3call);
+        console.log("api1call: ", api1call);
+        console.log("api2call: ", api2call);
+        console.log("api3call: ", api3call);
     }
 }
 
