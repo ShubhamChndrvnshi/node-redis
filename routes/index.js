@@ -6,6 +6,7 @@ const cluster = require('cluster');
 const axios = require('axios');
 let api1call = false;
 let api2call = false;
+let api3call = false;
 var net = require('net');
 let timer1, timer2;
 
@@ -112,7 +113,8 @@ cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
-    if (!api2call) {
+    if (!api2call && !api1call) {
+        api3call = true;
         console.log("\n*****************************************************************");
         console.log("Insert Market ODDS data into DB");
         db.client.hget("event-list", "event", (err, reply) => {
@@ -152,36 +154,39 @@ function saveMarketOddsData() {
                 console.log("No event list data");
                 console.log("*****************************************************************\n");
             }
+            api3call = false;
         })
     }
 }
 
 function saveEventListData() {
-    api1call = true;
-    console.log("\n*****************************************************************");
-    console.log("Insert Event list data into DB");
-    axios.get(process.env.EVENT_LIST).then(function (response) {
-        if (response.data?.data[0]) {
-            db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
-            let result = response.data.data[0];
-            result = stringyfyValues(result);
-            db.client.hmset("event-list", result);
-            console.log("Insert completed for Event list data");
-            console.log("*****************************************************************\n");
-        } else {
-            console.log("No data to insert");
-            console.log("*****************************************************************\n");
-        }
-        api1call = false;
-    }).catch(function (error) {
-        console.error(error);
-        api1call = false;
-    });
+    if (!api2call && !api3call) {
+        api1call = true;
+        console.log("\n*****************************************************************");
+        console.log("Insert Event list data into DB");
+        axios.get(process.env.EVENT_LIST).then(function (response) {
+            if (response.data?.data[0]) {
+                db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
+                let result = response.data.data[0];
+                result = stringyfyValues(result);
+                db.client.hmset("event-list", result);
+                console.log("Insert completed for Event list data");
+                console.log("*****************************************************************\n");
+            } else {
+                console.log("No data to insert");
+                console.log("*****************************************************************\n");
+            }
+            api1call = false;
+        }).catch(function (error) {
+            console.error(error);
+            api1call = false;
+        });
+    }
 }
 
 
 function saveMarketListData() {
-    if (!api1call) {
+    if (!api1call && !api3call) {
         api2call = true;
         console.log("\n*****************************************************************");
         console.log("Insert Market list data into DB");
