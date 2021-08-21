@@ -190,7 +190,7 @@ function saveMarketListData() {
                 console.error(err);
             }
             if (reply) {
-                let market_list;
+                let market_list = {};
                 reply = parseValues(reply);
                 reply.event.forEach(item => {
                     console.log("Inserting data for event: " + item.eventId);
