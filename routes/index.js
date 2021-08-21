@@ -16,7 +16,7 @@ let getOddsData = function () {
             if (err) {
                 reject(err);
             } else {
-                reply ? resolve(reply): resolve("no data");
+                reply ? resolve(reply) : resolve("no data");
             }
         })
     });
@@ -60,13 +60,13 @@ var oddsAPIserver = net.createServer(function (socket) {
         socket.write("\n");
         socket.write("\n");
     }, process.env.ODDS_SOCKET_TIMER);
-    socket.on("close",()=>{
+    socket.on("close", () => {
         clearInterval(timer1);
     });
-    socket.on("error",()=>{
+    socket.on("error", () => {
         clearInterval(timer1);
     });
-    socket.on("end",()=>{
+    socket.on("end", () => {
         clearInterval(timer1);
     });
 });
@@ -80,14 +80,14 @@ var eventMarketListServer = net.createServer(function (socket) {
         socket.write(obj);
         socket.write("\n");
         socket.write("\n");
-    },process.env.EVENT_SOCKET_TIMER);
-    socket.on("close",()=>{
+    }, process.env.EVENT_SOCKET_TIMER);
+    socket.on("close", () => {
         clearInterval(timer2);
     });
-    socket.on("error",()=>{
+    socket.on("error", () => {
         clearInterval(timer2);
     });
-    socket.on("end",()=>{
+    socket.on("end", () => {
         clearInterval(timer2);
     });
 });
@@ -112,9 +112,9 @@ cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
-    console.log("\n*****************************************************************");
-    console.log("Insert Market ODDS data into DB");
     if (!api2call) {
+        console.log("\n*****************************************************************");
+        console.log("Insert Market ODDS data into DB");
         db.client.hget("event-list", "event", (err, reply) => {
             if (err) {
                 console.error(err);
@@ -157,32 +157,34 @@ function saveMarketOddsData() {
 }
 
 function saveEventListData() {
+    api1call = true;
     console.log("\n*****************************************************************");
     console.log("Insert Event list data into DB");
     axios.get(process.env.EVENT_LIST).then(function (response) {
-        api1call = true;
-        if(response.data?.data[0]){
+        if (response.data?.data[0]) {
             db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
             let result = response.data.data[0];
             result = stringyfyValues(result);
             db.client.hmset("event-list", result);
             console.log("Insert completed for Event list data");
             console.log("*****************************************************************\n");
-        } else{
+        } else {
             console.log("No data to insert");
             console.log("*****************************************************************\n");
         }
         api1call = false;
     }).catch(function (error) {
         console.error(error);
+        api1call = false;
     });
 }
 
 
 function saveMarketListData() {
-    console.log("\n*****************************************************************");
-    console.log("Insert Market list data into DB");
     if (!api1call) {
+        api2call = true;
+        console.log("\n*****************************************************************");
+        console.log("Insert Market list data into DB");
         db.client.hgetall("event-list", (err, reply) => {
             if (err) {
                 console.error(err);
@@ -193,14 +195,12 @@ function saveMarketListData() {
                 reply.event.forEach(item => {
                     console.log("Inserting data for event: " + item.eventId);
                     axios.get(process.env.MARKET_LIST + item.eventId).then(function (response) {
-                        api2call = true;
                         if (response.data.data) {
                             let result = stringyfyValues(response.data.data);
                             db.client.hmset(`event-${item.eventId
                                 }`, result);
                         }
                         market_list[item.eventId] = response.data.data;
-                        api2call = false;
                     }).catch(function (error) {
                         console.error(error);
                     });
@@ -212,6 +212,7 @@ function saveMarketListData() {
                 console.log("No data in event list");
                 console.log("*****************************************************************\n");
             }
+            api2call = false;
         });
     }
 }
