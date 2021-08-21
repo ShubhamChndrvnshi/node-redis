@@ -197,10 +197,9 @@ function saveMarketListData() {
                     axios.get(process.env.MARKET_LIST + item.eventId).then(function (response) {
                         if (response.data.data) {
                             let result = stringyfyValues(response.data.data);
-                            db.client.hmset(`event-${item.eventId
-                                }`, result);
+                            db.client.hmset(`event-${item.eventId}`, result);
+                            market_list[item.eventId] = response.data.data;
                         }
-                        market_list[item.eventId] = response.data.data;
                     }).catch(function (error) {
                         console.error(error);
                     });
