@@ -57,8 +57,8 @@ var oddsAPIserver = net.createServer(function (socket) {
     timer1 = setInterval(async () => {
         let oddsData = await getOddsData();
         socket.write(oddsData);
-        socket.write();
-        socket.write();
+        socket.write("\n");
+        socket.write("\n");
     }, process.env.ODDS_SOCKET_TIMER);
     socket.on("close",()=>{
         clearInterval(timer1);
@@ -78,8 +78,8 @@ var eventMarketListServer = net.createServer(function (socket) {
     timer2 = setInterval(async () => {
         let obj = await getMarketEventData();
         socket.write(obj);
-        socket.write();
-        socket.write();
+        socket.write("\n");
+        socket.write("\n");
     },process.env.EVENT_SOCKET_TIMER);
     socket.on("close",()=>{
         clearInterval(timer2);
