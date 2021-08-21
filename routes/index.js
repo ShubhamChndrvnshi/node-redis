@@ -188,6 +188,7 @@ function saveMarketListData() {
                 console.error(err);
             }
             if (reply) {
+                let market_list;
                 reply = parseValues(reply);
                 reply.event.forEach(item => {
                     console.log("Inserting data for event: " + item.eventId);
@@ -198,12 +199,13 @@ function saveMarketListData() {
                             db.client.hmset(`event-${item.eventId
                                 }`, result);
                         }
+                        market_list[item.eventId] = response.data.data;
                         api2call = false;
                     }).catch(function (error) {
                         console.error(error);
                     });
                 })
-                db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(response.data.data));
+                db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(market_list));
                 console.log("Insert completed for Market list data");
                 console.log("*****************************************************************\n");
             } else {
