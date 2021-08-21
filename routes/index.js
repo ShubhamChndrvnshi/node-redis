@@ -16,7 +16,7 @@ let getOddsData = function () {
             if (err) {
                 reject(err);
             } else {
-                resolve(reply);
+                reply ? resolve(reply): resolve("no data");
             }
         })
     });
@@ -131,6 +131,7 @@ function saveMarketOddsData() {
                     data: JSON.stringify(marketidArray)
                 };
                 axios(config).then(function (response) {
+                    db.client.hset("API_RES", "ODDS_API", JSON.stringify(response.data.data));
                     response.data.data.items.forEach(item => {
                         let market_id = item.market_id;
                         let stringified = stringyfyValues(item);
@@ -139,7 +140,6 @@ function saveMarketOddsData() {
                                 }`, stringified);
                         }
                     });
-                    db.client.hset("API_RES", "ODDS_API", JSON.stringify(response.data.data));
                     console.log("*****************************************************************");
                     console.log("Insert completed for Market ODDS data");
                     console.log("*****************************************************************");
@@ -160,10 +160,10 @@ function saveEventListData() {
     axios.get(process.env.EVENT_LIST).then(function (response) {
         api1call = true;
         if(response.data?.data[0]){
+            db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
             let result = response.data.data[0];
             result = stringyfyValues(result);
             db.client.hmset("event-list", result);
-            db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
             console.log("*****************************************************************");
             console.log("Insert completed for Event list data");
             console.log("*****************************************************************");
