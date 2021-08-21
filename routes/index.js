@@ -233,8 +233,9 @@ function callMarketListAPI(url,item){
                 let result = stringyfyValues(response.data.data);
                 db.client.hmset(`event-${item.eventId}`, result);
                 resolve(response.data.data);
+            } else{
+                resolve(false);
             }
-            resolve();
         },err=>{
             reject(err);
         })
