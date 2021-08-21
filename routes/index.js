@@ -7,6 +7,8 @@ const axios = require('axios');
 let api1call = false;
 let api2call = false;
 var net = require('net');
+let timer1, timer2;
+
 
 let getOddsData = function () {
     return new Promise((resolve, reject) => {
@@ -47,23 +49,40 @@ let getMarketEventData = function () {
     });
 }
 
-var oddsAPIserver = net.createServer(async function (socket) {
-    setInterval(() => {
+
+var oddsAPIserver = net.createServer(function (socket) {
+    timer1 = setInterval(async () => {
         let oddsData = await getOddsData();
         socket.write(oddsData);
-        socket.pipe(socket);
     }, process.env.ODDS_SOCKET_TIMER);
+    socket.on("close",()=>{
+        clearInterval(timer1);
+    });
+    socket.on("error",()=>{
+        clearInterval(timer1);
+    });
+    socket.on("end",()=>{
+        clearInterval(timer1);
+    });
 });
 
 oddsAPIserver.listen(9898);
 
 
-var eventMarketListServer = net.createServer(async function (socket) {
-    setInterval(() => {
+var eventMarketListServer = net.createServer(function (socket) {
+    timer2 = setInterval(async () => {
         let obj = await getMarketEventData();
         socket.write(obj);
-        socket.pipe(socket);
     },process.env.EVENT_SOCKET_TIMER);
+    socket.on("close",()=>{
+        clearInterval(timer2);
+    });
+    socket.on("error",()=>{
+        clearInterval(timer2);
+    });
+    socket.on("end",()=>{
+        clearInterval(timer2);
+    });
 });
 
 eventMarketListServer.listen(9889);
