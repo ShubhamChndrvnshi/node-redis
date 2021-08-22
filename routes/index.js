@@ -29,23 +29,50 @@ let getMarketEventData = function () {
             if (err) {
                 reject(err);
             } else {
-                db.client.hget("API_RES", "EVENT_LIST_API", (err, reply) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        let obj = {};
-                        try {
-                            obj.MARKET_LIST_API = JSON.parse(market_reply);
-                        } catch (e) {
-                            obj.MARKET_LIST_API = "no data";
-                        }
-                        try {
-                            obj.EVENT_LIST_API = JSON.parse(reply);
-                        } catch (e) {
-                            obj.EVENT_LIST_API = "no data";
-                        }
-                        obj = JSON.stringify(obj);
-                        resolve(obj);
+                db.client.keys("event-*",(err,keys)=>{
+                    if(err){
+                        console.log("errerrerr",err);
+                    }
+                    let result = {};
+                    if(keys.length){
+                        keys.forEach(async key=>{
+                            let temp = db.client.hgetall(key);
+                            temp = parseValues(temp);
+                            result[key] = temp;
+                           });
+                           db.client.hget("API_RES", "EVENT_LIST_API", (err, reply) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                let obj = {};
+                                try {
+                                    obj.MARKET_LIST_API = JSON.parse(market_reply);
+                                } catch (e) {
+                                    obj.MARKET_LIST_API = "no data";
+                                }
+                                obj.EVENT_LIST_API = result;
+
+                                obj = JSON.stringify(obj);
+                                resolve(obj);
+                            }
+                        });
+                    } else{
+                        db.client.hget("API_RES", "EVENT_LIST_API", (err, reply) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                let obj = {};
+                                try {
+                                    obj.MARKET_LIST_API = JSON.parse(market_reply);
+                                } catch (e) {
+                                    obj.MARKET_LIST_API = "no data";
+                                }
+                                obj.EVENT_LIST_API = result;
+
+                                obj = JSON.stringify(obj);
+                                resolve(obj);
+                            }
+                        });
                     }
                 });
             }
@@ -118,7 +145,7 @@ function saveMarketOddsData() {
         apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Market ODDS data into DB");
-        db.client.hget("event-list", "event", (err, reply) => {
+        db.client.hget("eventList", "event", (err, reply) => {
             if (err) {
                 console.error(err);
             }
@@ -173,7 +200,7 @@ function saveEventListData() {
                 db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
                 let result = response.data.data[0];
                 result = stringyfyValues(result);
-                db.client.hmset("event-list", result);
+                db.client.hmset("eventList", result);
                 console.log("Insert completed for Event list data");
                 console.log("*****************************************************************\n");
             } else {
@@ -200,7 +227,7 @@ function saveMarketListData() {
         apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Market list data into DB");
-        db.client.hgetall("event-list", (err, reply) => {
+        db.client.hgetall("eventList", (err, reply) => {
             if (err) {
                 console.error(err);
             }
@@ -212,7 +239,6 @@ function saveMarketListData() {
                     let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
                     temp ? market_list[item.eventId] = temp : {};
                 })
-                db.client.hset("API_RES", "MARKET_LIST_API", JSON.stringify(market_list));
                 console.log("Insert completed for Market list data");
                 console.log("*****************************************************************\n");
             } else {
