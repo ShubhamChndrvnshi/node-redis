@@ -4,6 +4,7 @@ const db = require('../dbconfig');
 const cron = require("node-cron");
 const cluster = require('cluster');
 const axios = require('axios');
+const async = require("async");
 let api1call = false;
 let api2call = false;
 let api3call = false;
