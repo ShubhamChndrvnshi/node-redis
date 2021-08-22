@@ -60,7 +60,9 @@ let getMarketEventData = function () {
                                 resolve(JSON.stringify(res));
                             }
                         });
-                        console.log(series)
+                        series.forEach(fun=>{
+                            console.log(fun)
+                        })
                         async.series(series);
                     } else {
                         obj.EVENT_LIST_API = result;
