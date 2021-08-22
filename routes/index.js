@@ -24,11 +24,6 @@ let getOddsData = function () {
     });
 }
 
-function getKeysVal(keys){
-    return new Promise((resolve)=>{
-
-    })
-}
 
 let getMarketEventData = function () {
     return new Promise((resolve, reject) => {
@@ -36,56 +31,40 @@ let getMarketEventData = function () {
             if (err) {
                 reject(err);
             } else {
-                db.client.keys("event-*",(err,keys)=>{
-                    if(err){
-                        console.log("errerrerr",err);
+                let obj = {};
+                try {
+                    obj.MARKET_LIST_API = JSON.parse(market_reply);
+                } catch (e) {
+                    obj.MARKET_LIST_API = "no data";
+                }
+
+                db.client.keys("event-*", (err, keys) => {
+                    if (err) {
+                        console.log("errerrerr", err);
                     }
                     let result = {};
-                    if(keys.length){
-                        async.series([
-                            function(){
-                                keys.forEach(async key=>{
-                                    let temp = await db.client.hgetall(key);
-                                    temp = parseValues(temp);
-                                    result[key] = temp;
-                                   });
-                            },
-                            function(){
-                                db.client.hget("API_RES", "EVENT_LIST_API", (err, reply) => {
-                                    if (err) {
-                                        reject(err);
-                                    } else {
-                                        let obj = {};
-                                        try {
-                                            obj.MARKET_LIST_API = JSON.parse(market_reply);
-                                        } catch (e) {
-                                            obj.MARKET_LIST_API = "no data";
-                                        }
-                                        obj.EVENT_LIST_API = result;
-        
-                                        obj = JSON.stringify(obj);
-                                        resolve(obj);
-                                    }
-                                });
-                            }
-                        ])
-                    } else{
-                        db.client.hget("API_RES", "EVENT_LIST_API", (err, reply) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                let obj = {};
-                                try {
-                                    obj.MARKET_LIST_API = JSON.parse(market_reply);
-                                } catch (e) {
-                                    obj.MARKET_LIST_API = "no data";
+                    if (keys.length) {
+                        let series = [];
+                        keys.forEach(key => {
+                            series.push(function (cb) {
+                                db.client.hgetall(key, (err, reply) => {
+                                    cb(null, { key: reply });
+                                })
+                            });
+                            series.push(function (err, res) {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    console.log("stringifystringifystringify:",res);
+                                    resolve(JSON.stringify(res));
                                 }
-                                obj.EVENT_LIST_API = result;
-
-                                obj = JSON.stringify(obj);
-                                resolve(obj);
-                            }
+                            });
                         });
+                        async.series(series);
+                    } else {
+                        obj.EVENT_LIST_API = result;
+                        obj = JSON.stringify(obj);
+                        resolve(obj);
                     }
                 });
             }
@@ -265,17 +244,17 @@ function saveMarketListData() {
     }
 }
 
-function callMarketListAPI(url,item){
-    return new Promise((resolve, reject)=>{
+function callMarketListAPI(url, item) {
+    return new Promise((resolve, reject) => {
         axios.get(url).then(function (response) {
             if (response.data.data) {
                 let result = stringyfyValues(response.data.data);
                 db.client.hmset(`event-${item.eventId}`, result);
                 resolve(response.data.data);
-            } else{
+            } else {
                 resolve(false);
             }
-        },err=>{
+        }, err => {
             reject(err);
         })
     })
