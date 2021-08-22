@@ -27,6 +27,7 @@ let getOddsData = function () {
 
 let getMarketEventData = function () {
     return new Promise((resolve, reject) => {
+        let obj = {};
                 db.client.keys("event-*", (err, keys) => {
                     if (err) {
                         console.log("errerrerr", err);
