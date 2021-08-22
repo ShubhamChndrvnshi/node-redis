@@ -51,15 +51,16 @@ let getMarketEventData = function () {
                                     cb(null, { key: reply });
                                 })
                             });
-                            series.push(function (err, res) {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    console.log("stringifystringifystringify:",res);
-                                    resolve(JSON.stringify(res));
-                                }
-                            });
                         });
+                        series.push(function (err, res) {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                console.log("stringifystringifystringify:",res);
+                                resolve(JSON.stringify(res));
+                            }
+                        });
+                        console.log(series)
                         async.series(series);
                     } else {
                         obj.EVENT_LIST_API = result;
