@@ -28,65 +28,65 @@ let getOddsData = function () {
 let getMarketEventData = function () {
     return new Promise((resolve, reject) => {
         let obj = {};
-                db.client.keys("event-*", (err, keys) => {
+        db.client.keys("event-*", (err, keys) => {
+            if (err) {
+                console.log("errerrerr", err);
+            }
+            let result = {};
+            if (keys.length) {
+                let tasks = [];
+                let events = {};
+                keys.forEach(key => {
+                    tasks.push(function (cb) {
+                        db.client.hgetall(key, (err, reply) => {
+                            events[key] = parseValues(reply);
+                            cb(null, "done");
+                        })
+                    });
+                });
+                async.series(tasks, function (err, res) {
                     if (err) {
-                        console.log("errerrerr", err);
-                    }
-                    let result = {};
-                    if (keys.length) {
-                        let tasks = [];
-                        let events = {};
-                        keys.forEach(key => {
-                            tasks.push(function (cb) {
-                                db.client.hgetall(key, (err, reply) => {
-                                    events[key] = parseValues(reply);
-                                    cb(null, "done");
-                                })
-                            });
-                        });
-                        async.series(tasks,function (err, res) {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                obj.EVENT_LIST_API = events;
+                        reject(err);
+                    } else {
+                        obj.EVENT_LIST_API = events;
 
-                                db.client.keys("market-*", (err, keys) => {
+                        db.client.keys("market-*", (err, keys) => {
+                            if (err) {
+                                console.log("errerrerr", err);
+                            }
+                            if (keys.length) {
+                                let mtasks = [];
+                                let markets = {};
+                                keys.forEach(key => {
+                                    mtasks.push(function (cb) {
+                                        db.client.hgetall(key, (err, reply) => {
+                                            markets[key] = parseValues(reply);
+                                            cb(null, "done");
+                                        })
+                                    });
+                                });
+                                async.series(mtasks, function (err, res) {
                                     if (err) {
-                                        console.log("errerrerr", err);
-                                    }
-                                    if (keys.length) {
-                                        let mtasks = [];
-                                        let markets = {};
-                                        keys.forEach(key => {
-                                            mtasks.push(function (cb) {
-                                                db.client.hgetall(key, (err, reply) => {
-                                                    markets[key] = parseValues(reply);
-                                                    cb(null, "done");
-                                                })
-                                            });
-                                        });
-                                        async.series(mtasks,function (err, res) {
-                                            if (err) {
-                                                reject(err);
-                                            } else {
-                                                obj.MARKET_LIST_API = markets;
-                                                resolve(JSON.stringify(obj));
-                                            }
-                                        });
+                                        reject(err);
                                     } else {
-                                        obj.MARKET_LIST_API = {};
-                                        obj = JSON.stringify(obj);
-                                        resolve(obj);
+                                        obj.MARKET_LIST_API = markets;
+                                        resolve(JSON.stringify(obj));
                                     }
                                 });
+                            } else {
+                                obj.MARKET_LIST_API = {};
+                                obj = JSON.stringify(obj);
+                                resolve(obj);
                             }
                         });
-                    } else {
-                        obj.EVENT_LIST_API = result;
-                        obj = JSON.stringify(obj);
-                        resolve(obj);
                     }
                 });
+            } else {
+                obj.EVENT_LIST_API = result;
+                obj = JSON.stringify(obj);
+                resolve(obj);
+            }
+        });
     });
 }
 
@@ -115,9 +115,9 @@ oddsAPIserver.listen(8000);
 var eventMarketListServer = net.createServer(function (socket) {
     timer2 = setInterval(async () => {
         let obj = {};
-        try{
+        try {
             obj = await getMarketEventData();
-        }catch(e){
+        } catch (e) {
             console.log(e);
         }
         socket.write(obj);
@@ -155,7 +155,6 @@ cron.schedule(process.env.CRON_MARKET_LIST, saveMarketListData);
 cron.schedule(process.env.CRON_EVENT_LIST, saveEventListData);
 
 function saveMarketOddsData() {
-    api3call = true;
     if (!api2call || !api1call) {
         apiStatus();
         console.log("\n*****************************************************************");
@@ -198,15 +197,12 @@ function saveMarketOddsData() {
                 console.log("*****************************************************************\n");
             }
         })
-        api3call = false;
-    } else {
-        api3call = false;
     }
 }
 
 function saveEventListData() {
     api1call = true;
-    if (!api2call || !api3call) {
+    if (!api2call) {
         apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Event list data into DB");
@@ -238,7 +234,7 @@ function saveEventListData() {
 
 function saveMarketListData() {
     api2call = true;
-    if (!api1call || !api3call) {
+    if (!api1call) {
         apiStatus();
         console.log("\n*****************************************************************");
         console.log("Insert Market list data into DB");
@@ -306,19 +302,16 @@ function apiStatus() {
         console.log("api1 call in progress");
         console.log("api1call: ", api1call);
         console.log("api2call: ", api2call);
-        console.log("api3call: ", api3call);
     }
-    if (api2call) {
+    else if (api2call) {
         console.log("api2 call in progress");
         console.log("api1call: ", api1call);
         console.log("api2call: ", api2call);
-        console.log("api3call: ", api3call);
     }
-    if (api3call) {
+    else {
         console.log("api3 call in progress");
         console.log("api1call: ", api1call);
         console.log("api2call: ", api2call);
-        console.log("api3call: ", api3call);
     }
 }
 
