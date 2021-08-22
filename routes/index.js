@@ -45,10 +45,12 @@ let getMarketEventData = function () {
                     let result = {};
                     if (keys.length) {
                         let series = [];
+                        let events = {};
                         keys.forEach(key => {
                             series.push(function (cb) {
                                 db.client.hgetall(key, (err, reply) => {
-                                    cb(null, { key: reply });
+                                    events[key] = parseValues(reply);
+                                    cb(null, "done");
                                 })
                             });
                         });
@@ -56,8 +58,8 @@ let getMarketEventData = function () {
                             if (err) {
                                 reject(err);
                             } else {
-                                console.log("stringifystringifystringify:",res);
-                                resolve(JSON.stringify(res));
+                                obj.EVENT_LIST_API = events;
+                                resolve(JSON.stringify(obj));
                             }
                         });
                         series.forEach(fun=>{
