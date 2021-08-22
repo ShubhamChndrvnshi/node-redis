@@ -96,7 +96,12 @@ oddsAPIserver.listen(8000);
 
 var eventMarketListServer = net.createServer(function (socket) {
     timer2 = setInterval(async () => {
-        let obj = await getMarketEventData();
+        let obj = {};
+        try{
+            obj = await getMarketEventData();
+        }catch(e){
+            console.log(e);
+        }
         socket.write(obj);
         socket.write("\n");
         socket.write("\n");
