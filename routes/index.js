@@ -44,28 +44,25 @@ let getMarketEventData = function () {
                     }
                     let result = {};
                     if (keys.length) {
-                        let series = [];
+                        let tasks = [];
                         let events = {};
                         keys.forEach(key => {
-                            series.push(function (cb) {
+                            tasks.push(function (cb) {
                                 db.client.hgetall(key, (err, reply) => {
                                     events[key] = parseValues(reply);
                                     cb(null, "done");
                                 })
                             });
                         });
-                        series.push(function (err, res) {
+                        async.series(tasks,function (err, res) {
                             if (err) {
                                 reject(err);
                             } else {
+                                console.log(res);
                                 obj.EVENT_LIST_API = events;
                                 resolve(JSON.stringify(obj));
                             }
                         });
-                        series.forEach(fun=>{
-                            console.log(fun)
-                        })
-                        async.series(series);
                     } else {
                         obj.EVENT_LIST_API = result;
                         obj = JSON.stringify(obj);
