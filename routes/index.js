@@ -7,9 +7,10 @@ const axios = require('axios');
 const async = require("async");
 let api1call = false;
 let api2call = false;
-let api3call = false;
 var net = require('net');
 let timer1, timer2;
+// import { WebSocketServer } from 'ws';
+const WebSocketServer = require("ws").WebSocketServer;
 
 
 let getOddsData = function () {
@@ -112,7 +113,37 @@ var oddsAPIserver = net.createServer(function (socket) {
 oddsAPIserver.listen(8000);
 
 
-var eventMarketListServer = net.createServer(function (socket) {
+// var eventMarketListServer = net.createServer(function (socket) {
+//     timer2 = setInterval(async () => {
+//         let obj = {};
+//         try {
+//             obj = await getMarketEventData();
+//         } catch (e) {
+//             console.log(e);
+//         }
+//         socket.write(obj);
+//         socket.write("\n");
+//         socket.write("\n");
+//     }, process.env.EVENT_SOCKET_TIMER);
+//     socket.on("close", () => {
+//         clearInterval(timer2);
+//     });
+//     socket.on("error", () => {
+//         clearInterval(timer2);
+//     });
+//     socket.on("end", () => {
+//         clearInterval(timer2);
+//     });
+// });
+
+var eventMarketListServer = new WebSocketServer({ port: 8001 });
+
+eventMarketListServer.on('connection', function connection(ws) {
+
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
+
     timer2 = setInterval(async () => {
         let obj = {};
         try {
@@ -120,22 +151,14 @@ var eventMarketListServer = net.createServer(function (socket) {
         } catch (e) {
             console.log(e);
         }
-        socket.write(obj);
-        socket.write("\n");
-        socket.write("\n");
+        ws.send(obj);
+        ws.send("\n");
+        ws.send("\n");
     }, process.env.EVENT_SOCKET_TIMER);
-    socket.on("close", () => {
-        clearInterval(timer2);
-    });
-    socket.on("error", () => {
-        clearInterval(timer2);
-    });
-    socket.on("end", () => {
-        clearInterval(timer2);
-    });
+
 });
 
-eventMarketListServer.listen(8001);
+// eventMarketListServer.listen(8001);
 
 
 /* GET home page. */
