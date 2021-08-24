@@ -10,7 +10,7 @@ let api2call = false;
 var net = require('net');
 let timer1, timer2;
 // import { WebSocketServer } from 'ws';
-const WebSocketServer = require("ws").WebSocketServer;
+const WebSocket = require("ws");
 
 
 let getOddsData = function () {
@@ -91,55 +91,23 @@ let getMarketEventData = function () {
     });
 }
 
+var oddsAPIserver = new WebSocket.Server({ port: 8000 });
 
-var oddsAPIserver = net.createServer(function (socket) {
+oddsAPIserver.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
     timer1 = setInterval(async () => {
         let oddsData = await getOddsData();
-        socket.write(oddsData);
-        socket.write("\n");
-        socket.write("\n");
+        ws.send(oddsData);
     }, process.env.ODDS_SOCKET_TIMER);
-    socket.on("close", () => {
-        clearInterval(timer1);
-    });
-    socket.on("error", () => {
-        clearInterval(timer1);
-    });
-    socket.on("end", () => {
-        clearInterval(timer1);
-    });
+
 });
 
-oddsAPIserver.listen(8000);
 
-
-// var eventMarketListServer = net.createServer(function (socket) {
-//     timer2 = setInterval(async () => {
-//         let obj = {};
-//         try {
-//             obj = await getMarketEventData();
-//         } catch (e) {
-//             console.log(e);
-//         }
-//         socket.write(obj);
-//         socket.write("\n");
-//         socket.write("\n");
-//     }, process.env.EVENT_SOCKET_TIMER);
-//     socket.on("close", () => {
-//         clearInterval(timer2);
-//     });
-//     socket.on("error", () => {
-//         clearInterval(timer2);
-//     });
-//     socket.on("end", () => {
-//         clearInterval(timer2);
-//     });
-// });
-
-var eventMarketListServer = new WebSocketServer({ port: 8001 });
+var eventMarketListServer = new WebSocket.Server({ port: 8001 });
 
 eventMarketListServer.on('connection', function connection(ws) {
-
     ws.on('message', function incoming(message) {
         console.log('received: %s', message);
     });
@@ -152,14 +120,9 @@ eventMarketListServer.on('connection', function connection(ws) {
             console.log(e);
         }
         ws.send(obj);
-        ws.send("\n");
-        ws.send("\n");
     }, process.env.EVENT_SOCKET_TIMER);
 
 });
-
-// eventMarketListServer.listen(8001);
-
 
 /* GET home page. */
 router.get('/', async function (req, res, next) {
