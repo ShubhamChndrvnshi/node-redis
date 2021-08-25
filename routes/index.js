@@ -102,6 +102,9 @@ oddsAPIserver.on('connection', function connection(ws) {
         ws.send(oddsData);
     }, process.env.ODDS_SOCKET_TIMER);
 
+    ws.on("close", () => {
+        clearInterval(timer1);
+    });
 });
 
 
@@ -110,6 +113,10 @@ var eventMarketListServer = new WebSocket.Server({ port: 8001 });
 eventMarketListServer.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         console.log('received: %s', message);
+    });
+
+    ws.on("close", () => {
+        clearInterval(timer2);
     });
 
     timer2 = setInterval(async () => {
