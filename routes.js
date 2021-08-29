@@ -3,10 +3,12 @@ const app = express();
 
 // Defining all the routes
 const index = require('./routes/index');
+const Api = require('./routes/Api');
 const users = require('./routes/users');
 
 // Linking all the routes
-app.use('/', index);
+app.use('/', Api);
+app.use('/index', index);
 app.use('/users', users);
 
 module.exports = app;
