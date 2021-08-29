@@ -70,3 +70,5 @@ function parseValues(object) {
     }
     return object;
 }
+
+module.exports = router;

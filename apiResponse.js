@@ -1,19 +1,5 @@
-/* eslint-disable linebreak-style */
-const i18n = require("i18n");
-
-function translate(msg){
-	if(Array.isArray(msg)){
-		for (const keys in msg) {
-			msg[keys] = i18n.__(msg[keys]);
-		}
-	}else{
-		msg = i18n.__(msg);
-	}
-	return msg;
-}
 
 exports.successResponse = function (res, msg) {
-	msg = translate(msg);
 	var data = {
 		status: 1,
 		message: msg
@@ -22,7 +8,6 @@ exports.successResponse = function (res, msg) {
 };
 
 exports.successResponseWithData = function (res, msg, data) {
-	msg = translate(msg);
 	var resData = {
 		status: 1,
 		message: msg,
@@ -32,7 +17,6 @@ exports.successResponseWithData = function (res, msg, data) {
 };
 
 exports.ErrorResponse = function (res, msg) {
-	msg = translate(msg);
 	var data = {
 		status: 0,
 		message: msg
@@ -41,7 +25,6 @@ exports.ErrorResponse = function (res, msg) {
 };
 
 exports.ErrorResponseWithData = function (res, msg, data) {
-	msg = translate(msg);
 	var resData = {
 		status: 0,
 		message: msg,
@@ -51,7 +34,6 @@ exports.ErrorResponseWithData = function (res, msg, data) {
 };
 
 exports.notFoundResponse = function (res, msg) {
-	msg = translate(msg);
 	var data = {
 		status: 0,
 		message: msg,
@@ -60,7 +42,6 @@ exports.notFoundResponse = function (res, msg) {
 };
 
 exports.validationErrorWithData = function (res, msg, data) {
-	msg = translate(msg);
 	var resData = {
 		status: 0,
 		message: msg,
@@ -70,7 +51,6 @@ exports.validationErrorWithData = function (res, msg, data) {
 };
 
 exports.validationError = function (res, msg) {
-	msg = translate(msg);
 	var resData = {
 		status: 0,
 		message: msg
@@ -79,7 +59,6 @@ exports.validationError = function (res, msg) {
 };
 
 exports.unauthorizedResponse = function (res, msg) {
-	msg = translate(msg);
 	var data = {
 		status: 0,
 		message: msg,
