@@ -240,10 +240,10 @@ function saveMarketListData() {
                 reply = parseValues(reply);
                 reply.event.forEach(async (item) => {
                     console.log("Inserting data for event: " + item.eventId);
+                    console.log(item);
                     let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
                     temp = parseValues(temp);
                     market_list.runners = [];
-                    let keys = ["marketId", "isMarketDataDelayed", "status", "betDelay", "bspReconciled", "complete", "inplay", "numberOfWinners", "numberOfRunners", "numberOfActiveRunners", "lastMatchTime", "totalMatched", "totalAvailable", "crossMatching", "runnersVoidable", "version"];
                     Object.keys(temp).forEach((key)=>{
                         if(Array.isArray(temp[key])){
                             temp[key].forEach((item)=>{
@@ -252,7 +252,7 @@ function saveMarketListData() {
                                 }
                             })
                         }else{
-                            keys.includes(key) ?  market_list[key] = temp[key] : {} ;
+                            market_list[key] = temp[key];
                         }
                     });
                     db.client.hmset("marketList", "marketList", JSON.stringify(market_list));
