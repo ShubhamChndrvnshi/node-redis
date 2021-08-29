@@ -244,6 +244,7 @@ function saveMarketListData() {
                     temp = parseValues(temp);
                     temp.runners = [];
                     Object.keys(temp).forEach((key)=>{
+                        console.log(temp[key])
                         if(Array.isArray(temp[key])){
                             temp[key].forEach((item)=>{
                                 if(item.runners){
@@ -252,7 +253,7 @@ function saveMarketListData() {
                             })
                         }
                     });
-                    db.client.hmset("marketList", JSON.stringify(temp));
+                    db.client.hmset("marketList", "marketList", JSON.stringify(temp));
                 });
                 console.log("Insert completed for Market list data");
                 console.log("*****************************************************************\n");
