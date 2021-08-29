@@ -248,7 +248,7 @@ function saveMarketListData() {
                         if(Array.isArray(temp[key])){
                             temp[key].forEach((item)=>{
                                 if(item.runners){
-                                    temp.runner = [...temp.runners, ...item.runners];
+                                    temp.runners = [...temp.runners, ...item.runners];
                                 }
                             })
                         }
