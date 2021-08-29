@@ -241,8 +241,14 @@ function saveMarketListData() {
                 reply.event.forEach(async (item) => {
                     console.log("Inserting data for event: " + item.eventId);
                     let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
-                    temp ? market_list[item.eventId] = temp : {};
-                })
+                    temp.runners = [];
+                    if(temp){
+                        temp.otherMarket.forEach((item)=>{
+                            temp.runners = [...temp.runners, ...item.runners];
+                        })
+                    }
+                });
+                db.client.hmset("marketList", JSON.stringify(temp));
                 console.log("Insert completed for Market list data");
                 console.log("*****************************************************************\n");
             } else {

@@ -12,6 +12,9 @@ router.get("/events",getEvents);
 
 function getOdds(_req, res){
     try{
+        db.client.hmget("marketList",(err,reply)=>{
+            console.log(reply);
+        });
         db.client.keys("market-*", (err, keys) => {
             if (err) {
                 return apiResponse.ErrorResponse(res, err.message);
@@ -42,7 +45,7 @@ function getOdds(_req, res){
                     }
                 });
             } else {
-                return apiResponse.successResponseWithData(res, "Success",[]);
+                return apiResponse.successResponseWithData(res, "Success..!!",[]);
             }
         });
     }catch(e){
