@@ -171,7 +171,7 @@ function saveMarketOddsData() {
                     data: JSON.stringify(marketidArray)
                 };
                 axios(config).then(function (response) {
-                    fs.writeFileSync("ODDS_API.js",response.data.data,{encoding: "utf8"});
+                    fs.writeFileSync("./public/ODDS_API.js",response.data.data,{encoding: "utf8"});
                     db.client.hset("API_RES", "ODDS_API", JSON.stringify(response.data.data));
                     response.data.data.items.forEach(item => {
                         let market_id = item.market_id;
@@ -202,7 +202,7 @@ function saveEventListData() {
         console.log("Insert Event list data into DB");
         axios.get(process.env.EVENT_LIST).then(function (response) {
             if (response.data?.data[0]) {
-                fs.writeFileSync("EVENT_LIST_API.js",response.data.data,{encoding: "utf8"});
+                fs.writeFileSync("./public/EVENT_LIST_API.js",response.data.data,{encoding: "utf8"});
                 db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
                 let result = response.data.data[0];
                 result = stringyfyValues(result);
@@ -286,7 +286,7 @@ function callMarketListAPI(url, item) {
     return new Promise((resolve, reject) => {
         axios.get(url).then(function (response) {
             if (response.data.data) {
-                fs.writeFileSync(`event-${item.eventId}`,response.data.data,{encoding: "utf8"});
+                fs.writeFileSync(`./public/event-${item.eventId}`,response.data.data,{encoding: "utf8"});
                 let result = stringyfyValues(response.data.data);
                 db.client.hmset(`event-${item.eventId}`, result);
                 resolve(response.data.data);
