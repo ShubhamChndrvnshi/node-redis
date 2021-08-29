@@ -241,14 +241,19 @@ function saveMarketListData() {
                 reply.event.forEach(async (item) => {
                     console.log("Inserting data for event: " + item.eventId);
                     let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
+                    temp = parseValues(temp);
                     temp.runners = [];
-                    if(temp){
-                        temp.otherMarket.forEach((item)=>{
-                            temp.runners = [...temp.runners, ...item.runners];
-                        })
-                    }
+                    Object.keys(temp).forEach((key)=>{
+                        if(Array.isArray(temp[key])){
+                            temp[key].forEach((item)=>{
+                                if(item.runners){
+                                    temp.runner = [...temp.runners, ...item.runners];
+                                }
+                            })
+                        }
+                    });
+                    db.client.hmset("marketList", JSON.stringify(temp));
                 });
-                db.client.hmset("marketList", JSON.stringify(temp));
                 console.log("Insert completed for Market list data");
                 console.log("*****************************************************************\n");
             } else {
