@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-
+require("./routes/Sockets")
 // Defining all the routes
 const index = require('./routes/index');
 const Api = require('./routes/Api');
