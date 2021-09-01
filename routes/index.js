@@ -114,36 +114,35 @@ function saveMarketListData() {
                 console.error(err);
             }
             if (reply) {
-                let market_arr = [];
+                let market_obj = {};
                 reply = parseValues(reply);
                 let task = [];
                 reply.event.forEach((item) => {
                     task.push(function (cb) {
                         async function inner() {
-                            let market_list = {};
                             console.log("Inserting data for event: " + item.eventId);
                             let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
                             temp = parseValues(temp);
-                            market_list = item;
-                            market_list.oddsData?.odds ? delete market_list.oddsData.odds : {};
-                            market_list.runners = [];
-                            Object.keys(temp).forEach((key) => {
-                                if (Array.isArray(temp[key])) {
-                                    temp[key].forEach((item1) => {
-                                        if (item1.runners) {
-                                            market_list.runners = [...market_list.runners, ...item1.runners];
-                                        }
-                                    });
-                                }
-                            });
-                            market_arr.push(market_list);
+                            // market_list = item;
+                            // market_list.oddsData?.odds ? delete market_list.oddsData.odds : {};
+                            // market_list.runners = [];
+                            // Object.keys(temp).forEach((key) => {
+                            //     if (Array.isArray(temp[key])) {
+                            //         temp[key].forEach((item1) => {
+                            //             if (item1.runners) {
+                            //                 market_list.runners = [...market_list.runners, ...item1.runners];
+                            //             }
+                            //         });
+                            //     }
+                            // });
+                            market_obj[item.eventId] = temp;
                             cb(null, "done");
                         }
                         inner();
                     });
                 });
                 async.parallel(task, (err, task_res) => {
-                    db.client.hmset("marketList", "marketList", JSON.stringify(market_arr));
+                    db.client.hmset("marketList", "marketList", JSON.stringify(market_obj));
                     console.log("Insert completed for Market list data");
                     console.log("*****************************************************************\n");
                 });
