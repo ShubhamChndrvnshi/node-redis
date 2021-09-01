@@ -49,7 +49,6 @@ function saveMarketOddsData() {
                     data: JSON.stringify(marketidArray)
                 };
                 axios(config).then(function (response) {
-                    fs.writeFileSync("./public/ODDS_API.js",response.data.data,{encoding: "utf8"});
                     db.client.hset("API_RES", "ODDS_API", JSON.stringify(response.data.data));
                     response.data.data.items.forEach(item => {
                         let market_id = item.market_id;
@@ -80,7 +79,6 @@ function saveEventListData() {
         console.log("Insert Event list data into DB");
         axios.get(process.env.EVENT_LIST).then(function (response) {
             if (response.data?.data[0]) {
-                fs.writeFileSync("./public/EVENT_LIST_API.js",response.data.data,{encoding: "utf8"});
                 db.client.hset("API_RES", "EVENT_LIST_API", JSON.stringify(response.data.data[0]));
                 let result = response.data.data[0];
                 result = stringyfyValues(result);
@@ -106,65 +104,64 @@ function saveEventListData() {
 
 
 function saveMarketListData() {
-        api2call = true;
-        if (!api1call) {
-            apiStatus();
-            console.log("\n*****************************************************************");
-            console.log("Insert Market list data into DB");
-            db.client.hgetall("eventList", (err, reply) => {
-                if (err) {
-                    console.error(err);
-                }
-                if (reply) {
-                    let market_arr = []
-                    reply = parseValues(reply);
-                    let task = [];
-                    reply.event.forEach((item) => {
-                        task.push(function(cb){
-                            async function inner(){
-                                let market_list = {};
-                                console.log("Inserting data for event: " + item.eventId);
-                                let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
-                                temp = parseValues(temp);
-                                market_list = item;
-                                market_list.oddsData?.odds ? delete market_list.oddsData.odds : {};
-                                market_list.runners = [];
-                                Object.keys(temp).forEach((key)=>{
-                                    if(Array.isArray(temp[key])){
-                                        temp[key].forEach((item1)=>{
-                                            if(item1.runners){
-                                                market_list.runners = [...market_list.runners, ...item1.runners];
-                                            }
-                                        })
-                                    }
-                                });
-                                market_arr.push(market_list);
-                                cb(null,"done");
-                            }
-                            inner();
-                        });
-                    });
-                    async.parallel(task,(err,task_res)=>{
-                        db.client.hmset("marketList", "marketList", JSON.stringify(market_arr));
-                        console.log("Insert completed for Market list data");
-                        console.log("*****************************************************************\n");
-                    })
-                } else {
-                    console.log("No data in event list");
-                    console.log("*****************************************************************\n");
-                }
-            });
-            api2call = false;
-        } else {
-            api2call = false;
-        }
+    api2call = true;
+    if (!api1call) {
+        apiStatus();
+        console.log("\n*****************************************************************");
+        console.log("Insert Market list data into DB");
+        db.client.hgetall("eventList", (err, reply) => {
+            if (err) {
+                console.error(err);
+            }
+            if (reply) {
+                let market_arr = [];
+                reply = parseValues(reply);
+                let task = [];
+                reply.event.forEach((item) => {
+                    task.push(function (cb) {
+                        async function inner() {
+                            let market_list = {};
+                            console.log("Inserting data for event: " + item.eventId);
+                            let temp = await callMarketListAPI(process.env.MARKET_LIST + item.eventId, item);
+                            temp = parseValues(temp);
+                            market_list = item;
+                            market_list.oddsData?.odds ? delete market_list.oddsData.odds : {};
+                            market_list.runners = [];
+                            Object.keys(temp).forEach((key) => {
+                                if (Array.isArray(temp[key])) {
+                                    temp[key].forEach((item1) => {
+                                        if (item1.runners) {
+                                            market_list.runners = [...market_list.runners, ...item1.runners];
+                                        }
+                                    });
+                                }
+                            });
+                            market_arr.push(market_list);
+                            cb(null, "done");
+                        }
+                        inner();
+                    });
+                });
+                async.parallel(task, (err, task_res) => {
+                    db.client.hmset("marketList", "marketList", JSON.stringify(market_arr));
+                    console.log("Insert completed for Market list data");
+                    console.log("*****************************************************************\n");
+                });
+            } else {
+                console.log("No data in event list");
+                console.log("*****************************************************************\n");
+            }
+        });
+        api2call = false;
+    } else {
+        api2call = false;
     }
+}
 
 function callMarketListAPI(url, item) {
     return new Promise((resolve, reject) => {
         axios.get(url).then(function (response) {
             if (response.data.data) {
-                fs.writeFileSync(`./public/event-${item.eventId}`,response.data.data,{encoding: "utf8"});
                 let result = stringyfyValues(response.data.data);
                 db.client.hmset(`event-${item.eventId}`, result);
                 resolve(response.data.data);
@@ -173,7 +170,7 @@ function callMarketListAPI(url, item) {
             }
         }, err => {
             reject(err);
-        })
+        });
     })
 }
 
